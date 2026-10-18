@@ -20,6 +20,7 @@ SpawnPlayer:
 	ld a, -1
 	ld [wObjectFollow_Leader], a
 	ld [wObjectFollow_Follower], a
+	ld [wFollowerRespawnAfterScript], a
 	ld a, PLAYER
 	ld hl, PlayerObjectTemplate
 	call CopyPlayerObjectTemplate
@@ -800,8 +801,8 @@ GetRelativeFacing::
 QueueFollowerFirstStep:
 	call .QueueFirstStep
 	jr c, .same
-	ld [wFollowMovementQueue], a
-	xor a
+	ld [wFollowMovementQueue + 1], a
+	ld a, 1
 	ld [wFollowerMovementQueueLength], a
 	ret
 

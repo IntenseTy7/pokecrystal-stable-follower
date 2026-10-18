@@ -86,6 +86,9 @@ MapSetupScript_Connection:
 	mapsetup RefreshPlayerCoords
 	mapsetup LoadBlockData
 	mapsetup LoadMapTileset
+	; The destination map may use different NPC sprites from the source.
+	; Load its graphics before InitializeVisibleSprites assigns tile IDs.
+	mapsetup RefreshConnectionSpriteGFX
 	mapsetup SaveScreen
 	mapsetup LoadMapObjects
 	mapsetup FadeToMapMusic

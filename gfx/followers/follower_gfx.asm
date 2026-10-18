@@ -909,9 +909,9 @@ MewFollowerGFXEnd::
 
 SECTION "Follower GFX - Chikorita", ROMX
 ChikoritaFollowerGFX::
-	INCBIN "gfx/followers/chikorita.2bpp"
+	INCBIN "gfx/followers/large/chikorita.2bpp"
 ChikoritaFollowerGFXEnd::
-	assert ChikoritaFollowerGFXEnd - ChikoritaFollowerGFX == FOLLOWER_GFX_BYTES
+	assert ChikoritaFollowerGFXEnd - ChikoritaFollowerGFX == FOLLOWER_LARGE_BYTES
 
 SECTION "Follower GFX - Bayleef", ROMX
 BayleefFollowerGFX::
@@ -927,9 +927,9 @@ MeganiumFollowerGFXEnd::
 
 SECTION "Follower GFX - Cyndaquil", ROMX
 CyndaquilFollowerGFX::
-	INCBIN "gfx/followers/cyndaquil.2bpp"
+	INCBIN "gfx/followers/large/cyndaquil.2bpp"
 CyndaquilFollowerGFXEnd::
-	assert CyndaquilFollowerGFXEnd - CyndaquilFollowerGFX == FOLLOWER_GFX_BYTES
+	assert CyndaquilFollowerGFXEnd - CyndaquilFollowerGFX == FOLLOWER_LARGE_BYTES
 
 SECTION "Follower GFX - Quilava", ROMX
 QuilavaFollowerGFX::
@@ -945,9 +945,9 @@ TyphlosionFollowerGFXEnd::
 
 SECTION "Follower GFX - Totodile", ROMX
 TotodileFollowerGFX::
-	INCBIN "gfx/followers/totodile.2bpp"
+	INCBIN "gfx/followers/large/totodile.2bpp"
 TotodileFollowerGFXEnd::
-	assert TotodileFollowerGFXEnd - TotodileFollowerGFX == FOLLOWER_GFX_BYTES
+	assert TotodileFollowerGFXEnd - TotodileFollowerGFX == FOLLOWER_LARGE_BYTES
 
 SECTION "Follower GFX - Croconaw", ROMX
 CroconawFollowerGFX::

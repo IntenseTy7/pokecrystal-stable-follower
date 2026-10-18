@@ -37,12 +37,12 @@ PalletGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_TEACHER
@@ -62,12 +62,12 @@ ViridianGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_TEACHER
@@ -87,12 +87,12 @@ PewterGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_TEACHER
@@ -112,12 +112,12 @@ CinnabarGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_TEACHER
@@ -137,12 +137,12 @@ CeruleanGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_COOLTRAINER_M
@@ -162,12 +162,12 @@ SaffronGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_COOLTRAINER_M
@@ -187,12 +187,12 @@ CeladonGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_FISHER
@@ -212,12 +212,12 @@ LavenderGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_POKEFAN_M
@@ -237,12 +237,12 @@ VermilionGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_POKEFAN_M
@@ -262,12 +262,12 @@ FuchsiaGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_POKEFAN_M
@@ -287,12 +287,12 @@ IndigoGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_POKEFAN_M
@@ -312,12 +312,12 @@ NewBarkGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_RIVAL
@@ -337,12 +337,12 @@ CherrygroveGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_RIVAL
@@ -362,12 +362,12 @@ SilverGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_RIVAL
@@ -387,12 +387,12 @@ VioletGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_FISHER
@@ -412,12 +412,12 @@ EcruteakGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_FISHER
@@ -437,14 +437,14 @@ AzaleaGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
 	db SPRITE_KURT_OUTSIDE
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
-	db SPRITE_BIG_SNORLAX
+	db SPRITE_SUICUNE ; SNORLAX encounter occurs only in Vermilion group
 	db SPRITE_GRAMPS
 	db SPRITE_YOUNGSTER
 	db SPRITE_OFFICER
@@ -462,12 +462,12 @@ GoldenrodGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_POKE_BALL
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_GRAMPS
@@ -487,14 +487,14 @@ CianwoodGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
 	db SPRITE_STANDING_YOUNGSTER
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
-	db SPRITE_BIG_SNORLAX
+	db SPRITE_SUICUNE ; SNORLAX encounter occurs only in Vermilion group
 	db SPRITE_OLIVINE_RIVAL
 	db SPRITE_POKEFAN_M
 	db SPRITE_LASS
@@ -512,14 +512,14 @@ OlivineGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
 	db SPRITE_STANDING_YOUNGSTER
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
-	db SPRITE_BIG_SNORLAX
+	db SPRITE_SUICUNE ; SNORLAX encounter occurs only in Vermilion group
 	db SPRITE_OLIVINE_RIVAL
 	db SPRITE_POKEFAN_M
 	db SPRITE_LASS
@@ -537,12 +537,12 @@ LakeOfRageGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_LANCE
@@ -562,12 +562,12 @@ MahoganyGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_GRAMPS
@@ -587,12 +587,12 @@ BlackthornGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_GRAMPS
@@ -612,14 +612,14 @@ DungeonsGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
 	db SPRITE_GAMEBOY_KID
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
-	db SPRITE_BIG_SNORLAX
+	db SPRITE_SUICUNE ; SNORLAX encounter occurs only in Vermilion group
 	db SPRITE_LASS
 	db SPRITE_POKEFAN_F
 	db SPRITE_TEACHER
@@ -637,12 +637,12 @@ FastShipGroupSprites:
 	db SPRITE_SILVER_TROPHY
 	db SPRITE_FAMICOM
 	db SPRITE_POKEDEX
-	db SPRITE_WILL
-	db SPRITE_KAREN
-	db SPRITE_NURSE
-	db SPRITE_OLD_LINK_RECEPTIONIST
-	db SPRITE_BIG_LAPRAS
-	db SPRITE_BIG_ONIX
+	db SPRITE_SUICUNE ; shared placeholder: WILL appears indoors only
+	db SPRITE_SUICUNE ; shared placeholder: KAREN appears indoors only
+	db SPRITE_SUICUNE ; SPRITE_NURSE only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_OLD_LINK_RECEPTIONIST only used indoors, do not preload outdoors
+	db SPRITE_SUICUNE ; SPRITE_BIG_LAPRAS only used for indoor decoration
+	db SPRITE_SUICUNE ; SPRITE_BIG_ONIX only used indoors, do not preload outdoors
 	db SPRITE_SUDOWOODO
 	db SPRITE_BIG_SNORLAX
 	db SPRITE_SAILOR

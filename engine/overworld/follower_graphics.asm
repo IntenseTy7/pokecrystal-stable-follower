@@ -109,6 +109,22 @@ GetFollowerGFXDataByID::
 	ld a, [hl]
 	ld [wFollowerPalette], a
 	ld c, FOLLOWER_SPRITE_TILES
+	; Three prototypes use 27 tiles per half, all other species 12.
+	; The graphics ID is cached by PrepareFollowerGFX before entry lookup.
+	ld a, [wFollowerResolvedGFXID + 1]
+	and a
+	jr nz, .normal_size
+	ld a, [wFollowerResolvedGFXID]
+	cp CHIKORITA
+	jr z, .large_size
+	cp CYNDAQUIL
+	jr z, .large_size
+	cp TOTODILE
+	jr nz, .normal_size
+.large_size
+	ld c, FOLLOWER_LARGE_HALF_TILES
+.normal_size
+	ld a, [wFollowerPalette]
 	and a
 	ret
 
@@ -122,9 +138,12 @@ GetFollowerSpriteData::
 	scf
 	ret
 
-; Copy both 12-tile halves into the fixed bank-1 follower range.
-; The general allocator is patched to avoid $74-$7f, so this cannot overwrite
-; map sprites, trainers, fruit trees, or outdoor sprite graphics.
+; Copy 12 or 27 tiles per half into fixed OBJ tile areas.
+; Standing: bank 0, $65..$7f (large), $65..$70 (legacy).
+; Walking: bank 1, $dd..$f7 (large), $e5..$f0 (legacy).
+; Bank 1 $f8..$ff MUST remain free: Crystal uses it for emotes,
+; shadows and grass rustle. V4/V5 large followers wrote through $ff,
+; so left/right feet were replaced by overworld effect graphics.
 LoadFollowerGFX::
 	call PrepareFollowerGFX
 	ret c
@@ -140,12 +159,31 @@ LoadFollowerGFX::
 	pop bc
 	pop de
 
-	ld hl, FOLLOWER_SPRITE_TILES * TILE_SIZE
+	; The second half begins after C tiles (12 legacy / 27 large).
+	ld h, 0
+	ld l, c
+rept 4
+	add hl, hl
+endr
 	add hl, de
 	ld d, h
 	ld e, l
-	ld c, FOLLOWER_SPRITE_TILES
+	; The 27-tile 24x24 walking half starts eight tiles earlier than
+	; the original 12-tile half. This keeps bank-1 $f8..$ff available
+	; for the overworld emote/shadow/grass effects.
+	ld a, 1
+	ldh [rVBK], a
+	ld a, c
+	cp FOLLOWER_LARGE_HALF_TILES
+	jr nz, .legacy_walking
+	; Tile $dd is an absolute OBJ tile ID. vTiles1 already starts at tile $80.
+	; Adding $dd to vTiles1 incorrectly wrote to $95d0 (BG tile storage).
+	; Use vTiles0 ($8000) so bank-1 OBJ tile $dd lands at $8dd0.
+	ld hl, vTiles0 + FOLLOWER_LARGE_WALK_VTILE * TILE_SIZE
+	jr .copy_walking
+.legacy_walking
 	ld hl, vTiles1 + FOLLOWER_VRAM_TILE * TILE_SIZE
+.copy_walking
 	call Get2bpp
 
 	pop af

@@ -1,4 +1,5 @@
 INCLUDE "data/sprites/facings.asm"
+INCLUDE "data/sprites/follower_large_facings.asm"
 
 INCLUDE "data/sprites/map_objects.asm"
 
@@ -642,6 +643,19 @@ MovementFunction_0e:
 	jp _GetMovementObject
 
 MovementFunction_Follow:
+	; The permanent Pokemon follows the actual tiles vacated by the
+	; trainer. Keep the original command queue for scripted NPC follow.
+	ld a, [wObjectFollow_Leader]
+	and a ; player object struct is zero
+	jr nz, .scripted
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	cp SPRITE_FOLLOWER
+	jr nz, .scripted
+	ld hl, GetNativeFollowerNextStep
+	jp HandleMovementData
+.scripted
 	ld hl, GetFollowerNextMovementIndex
 	jp HandleMovementData
 
@@ -1952,6 +1966,38 @@ ApplyMovementToFollower:
 	ldh a, [hMapObjectIndex]
 	cp d
 	ret nz
+	; The native Pokemon must not replay the player's direction.
+	; Record the player's current (soon to be vacated) tile instead.
+	; A scripted follower still uses the vanilla movement command queue.
+	ld a, d
+	and a ; player is struct zero
+	jr nz, .scripted
+	push bc
+	push de
+	ld a, [wObjectFollow_Follower]
+	call GetObjectStruct
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	pop de
+	pop bc
+	cp SPRITE_FOLLOWER
+	jr nz, .scripted
+	ld a, e
+	; Turn-head and turn-step commands ($00..$07) do not vacate a tile.
+	; In particular, a blocked sign/building approach can turn in place.
+	; Never enqueue the player's occupied tile for a turning command.
+	cp movement_slow_step
+	ret c
+	cp movement_turn_away ; real walk/slide opcodes $08..$1f
+	jr c, .record_native
+	cp movement_slow_jump_step ; jumps also vacate a map tile
+	ret c
+	cp movement_remove_sliding
+	ret nc
+.record_native
+	jp QueueNativeFollowerWaypoint
+.scripted
 	ld a, e
 	cp movement_step_sleep
 	ret z
@@ -1965,6 +2011,11 @@ ApplyMovementToFollower:
 	ret c
 	push af
 	ld hl, wFollowerMovementQueueLength
+	; Queue uses 1-based slots (1..4) in its five-byte allocation.
+	; Do not overwrite the next WRAM object when movement stacks up.
+	ld a, [hl]
+	cp 4
+	jr nc, .queue_full
 	inc [hl]
 	ld e, [hl]
 	ld d, 0
@@ -1972,6 +2023,195 @@ ApplyMovementToFollower:
 	add hl, de
 	pop af
 	ld [hl], a
+	ret
+
+.queue_full
+	pop af
+	ret
+
+; Permanent follower path: 15 FIFO waypoints, each an exact map tile.
+; This state lives in the existing 34 unused bytes of follower WRAM,
+; so save/WRAM struct offsets and scripted-follow queue are unchanged.
+; Called BEFORE the player starts the step, while BC points to its struct.
+QueueNativeFollowerWaypoint:
+	ld a, [wFollowerPathCount]
+	cp 15
+	jr nc, .full
+	ld e, a
+	ld a, [wFollowerPathHead]
+	add e
+	cp 15
+	jr c, .index
+	sub 15
+.index
+	add a ; two bytes per waypoint
+	ld e, a
+	ld d, 0
+	ld hl, wFollowerPathTiles
+	add hl, de
+	push hl
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	ld [hli], a
+	push hl
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	ld [hl], a
+	ld hl, wFollowerPathCount
+	inc [hl]
+	ret
+.full
+	; Never overwrite neighboring WRAM. Mark overflow for diagnostics;
+	; the existing waypoints can still drain normally.
+	ld a, 1
+	ld [wFollowerPathOverflow], a
+	ret
+
+; BC is the native Pokemon follower object struct.
+; Each movement targets a real trainer trail tile rather than an old
+; direction input. The player and Pokemon then use the same native
+; 8-frame interpolation for their ordinary walking moves.
+GetNativeFollowerNextStep:
+.loop
+	ld a, [wFollowerPathCount]
+	and a
+	jp z, .idle
+	ld a, [wFollowerPathHead]
+	add a
+	ld e, a
+	ld d, 0
+	ld hl, wFollowerPathTiles
+	add hl, de
+	ld d, [hl] ; waypoint X
+	inc hl
+	ld e, [hl] ; waypoint Y
+	; A stale waypoint may still point at the player (e.g. when
+	; movement was obstructed). Never initiate a step onto that tile.
+	; Wait until the player actually vacates it. Do not pop the waypoint.
+	; Absolute player-struct addresses preserve BC, DE and the FIFO state.
+	ld a, [wPlayerStruct + OBJECT_MAP_X]
+	cp d
+	jr nz, .target_unoccupied
+	ld a, [wPlayerStruct + OBJECT_MAP_Y]
+	cp e
+	jp z, .idle
+.target_unoccupied
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, [hl]
+	cp d
+	jp z, .same_x
+	jr c, .target_right
+	; Follower lies right of target.
+	ld a, movement_step + LEFT
+	jr .horizontal
+.target_right
+	ld a, movement_step + RIGHT
+.horizontal
+	push af
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, [hl]
+	cp e
+	jr nz, .recover_horizontal
+	; Same row. If the target is adjacent, consume it now.
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, [hl]
+	sub d
+	jr z, .recover_horizontal ; impossible (different X)
+	cp 1
+	jr z, .take_horizontal
+	cp -1
+	jr z, .take_horizontal
+.recover_horizontal
+	; A stalled step/map script may leave a gap. Approach the oldest
+	; waypoint one cardinal tile at a time without discarding it.
+	pop af
+	jp .speed
+.take_horizontal
+	pop af
+	jr .take
+.same_x
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, [hl]
+	cp e
+	jr z, .duplicate
+	jr c, .target_down
+	ld a, movement_step + UP
+	jr .vertical
+.target_down
+	ld a, movement_step + DOWN
+.vertical
+	; Same X, but the target may be multiple rows away.
+	push af
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, [hl]
+	sub e
+	cp 1
+	jr z, .take_vertical
+	cp -1
+	jr z, .take_vertical
+	pop af
+	jp .speed
+.take_vertical
+	pop af
+.take
+	push af
+	call AdvanceNativeFollowerWaypoint
+	pop af
+	jr .speed
+.duplicate
+	call AdvanceNativeFollowerWaypoint
+	jp .loop
+.speed
+	; Toggle stride only when initiating a real follower tile step.
+	push af
+	ld hl, wFollowerStrideParity
+	ld a, [hl]
+	xor 1
+	ld [hl], a
+	pop af
+	; Match the player's 4/8/16-frame walking speed where possible.
+	push af
+	ld a, [wPlayerStruct + OBJECT_WALKING]
+	and %00001100
+	cp STEP_BIKE << 2
+	jr z, .fast
+	cp STEP_SLOW << 2
+	jr z, .slow
+	pop af
+	ret
+.fast
+	pop af
+	add movement_big_step - movement_step
+	ret
+.slow
+	pop af
+	sub movement_step - movement_slow_step
+	ret
+.idle
+	; Do not consume or reinterpret the shared scripted movement queue.
+	ld a, movement_step_sleep ; self-contained one-frame wait
+	ret
+
+AdvanceNativeFollowerWaypoint:
+	ld hl, wFollowerPathHead
+	ld a, [hl]
+	inc a
+	cp 15
+	jr c, .keep
+	xor a
+.keep
+	ld [hl], a
+	ld hl, wFollowerPathCount
+	dec [hl]
 	ret
 
 GetFollowerNextMovementIndex:
@@ -1999,7 +2239,90 @@ GetFollowerNextMovementIndex:
 .done
 	call .CancelFollowIfLeaderMissing
 	ret c
+	; If a warp/script leaves the follower multiple tiles behind and
+	; its queued steps run out, walk toward the idle player until the
+	; follower is one tile away.  Only straight, unobstructed-looking
+	; axis alignment is attempted; ordinary queued movement wins.
+	call .CatchUpToIdleLeader
+	ret
+
+.CatchUpToIdleLeader:
+	push bc
+	ld a, [wObjectFollow_Leader]
+	call GetObjectStruct
+	ld hl, OBJECT_WALKING
+	add hl, bc
+	ld a, [hl]
+	cp STANDING
+	jp nz, .idle
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld d, [hl]
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld e, [hl]
+	push de
+	ld a, [wObjectFollow_Follower]
+	call GetObjectStruct
+	pop de
+	ld hl, OBJECT_WALKING
+	add hl, bc
+	ld a, [hl]
+	cp STANDING
+	jp nz, .idle
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, d
+	cp [hl]
+	jr z, .same_x
+	; Do not chase diagonally or across turns: only a straight corridor.
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, e
+	cp [hl]
+	jr nz, .idle
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, d
+	cp [hl]
+	jr c, .left
+	sub [hl]
+	cp 2
+	jr c, .idle
+	ld a, movement_step + RIGHT
+	jr .return
+.left
+	ld a, [hl]
+	sub d
+	cp 2
+	jr c, .idle
+	ld a, movement_step + LEFT
+	jr .return
+.same_x
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, e
+	cp [hl]
+	jr c, .up
+	sub [hl]
+	cp 2
+	jr c, .idle
+	ld a, movement_step + DOWN
+	jr .return
+.up
+	ld a, [hl]
+	sub e
+	cp 2
+	jr c, .idle
+	ld a, movement_step + UP
+	jr .return
+.idle
+	; movement_step_sleep ($46) consumes an extra duration byte.  The
+	; follower queue supplies command bytes, not inline sleep parameters,
+	; so the old opcode caused stalls when the queue was empty.
 	ld a, movement_step_sleep
+.return
+	pop bc
 	ret
 
 .CancelFollowIfLeaderMissing:
@@ -2546,6 +2869,93 @@ StartFollow::
 	farcall QueueFollowerFirstStep
 	ret
 
+; Map entry only: initial position is already behind the player.
+; Leave StartFollow unchanged for scripted followers.
+StartFollowMap::
+	push bc
+	ld a, b
+	call SetLeaderIfVisible
+	pop bc
+	ret c
+	ld a, c
+	call SetFollowerIfVisible
+	; The map-entry follower has no startup catch-up movement.
+	xor a
+	ld [wFollowerMovementQueueLength], a
+	; Map arrival invalidates all pre-warp waypoints and step parity.
+	ld [wFollowerPathHead], a
+	ld [wFollowerPathCount], a
+	ld [wFollowerPathOverflow], a
+	ld [wFollowerStrideParity], a
+	; Initialize facing from the player before the first rendered frame.
+	ld a, [wObjectFollow_Follower]
+	cp -1
+	ret z
+	call GetObjectStruct
+	ld hl, OBJECT_STEP_FRAME
+	add hl, bc
+	xor a
+	ld [hl], a
+	ld hl, OBJECT_ACTION
+	add hl, bc
+	ld [hl], OBJECT_ACTION_STAND
+	call InitFollowerFacingFromPlayer
+	ret
+
+InitFollowerFacingFromPlayer:
+	; Face toward the actual player tile, not the warp's old facing.
+	; Warp scripts can turn the player after PlaceFollowerObject executes.
+	; The follower has already been placed on an adjacent tile, so use
+	; its position relative to the player for an immediate correct pose.
+	ld hl, OBJECT_MAP_Y
+	add hl, bc
+	ld a, [wPlayerMapY]
+	cp [hl]
+	jr c, .face_up
+	jr nz, .face_down
+	ld hl, OBJECT_MAP_X
+	add hl, bc
+	ld a, [wPlayerMapX]
+	cp [hl]
+	jr c, .face_left
+	jr nz, .face_right
+	; Both coordinates equal (e.g. an event-spawn): use old rule.
+	farcall GetFollowerSpawnFacing
+	jr .set_facing
+.face_up
+	ld a, UP
+	jr .set_facing
+.face_down
+	ld a, DOWN
+	jr .set_facing
+.face_left
+	ld a, LEFT
+	jr .set_facing
+.face_right
+	ld a, RIGHT
+.set_facing
+	ld e, a
+	ld d, 0
+	ld hl, .directions
+	add hl, de
+	ld a, [hl]
+	ld hl, OBJECT_DIRECTION
+	add hl, bc
+	ld [hl], a
+	ld hl, .facings
+	add hl, de
+	ld a, [hl]
+	ld hl, OBJECT_FACING
+	add hl, bc
+	ld [hl], a
+	ret
+
+.directions
+	db OW_DOWN, OW_UP, OW_LEFT, OW_RIGHT
+
+.facings
+	db FACING_STEP_DOWN_0, FACING_STEP_UP_0, FACING_STEP_LEFT_0, FACING_STEP_RIGHT_0
+
 SetLeaderIfVisible:
 	call CheckObjectVisibility
 	ret c
@@ -2575,6 +2985,12 @@ SetFollowerIfVisible:
 	ld hl, OBJECT_STEP_TYPE
 	add hl, bc
 	ld [hl], STEP_TYPE_RESET
+	ld hl, OBJECT_FLAGS1
+	add hl, bc
+	res FIXED_FACING_F, [hl]
+	ld hl, OBJECT_FLAGS2
+	add hl, bc
+	res FROZEN_F, [hl]
 	ldh a, [hObjectStructIndex]
 	ld [wObjectFollow_Follower], a
 	ret
@@ -2955,10 +3371,162 @@ InitSprites:
 	jp z, .done
 	cp NUM_FACINGS
 	jp nc, .done
+	; Normal NPCs in the second (bank-0) table only have standing
+	; graphics. Their walking halves are deliberately not loaded by
+	; GetUsedSprite; drawing step 1 or 3 there reads the text font.
+	; Show the correctly facing neutral pose instead of corrupted text.
+	cp FACING_FISH_DOWN
+	jr nc, .sprite_facing_ready
+	push af
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	cp SPRITE_FOLLOWER
+	jr z, .preserve_facing
+	ld hl, OBJECT_SPRITE_TILE
+	add hl, bc
+	bit 7, [hl]
+	jr z, .preserve_facing
+	pop af
+	and $fc ; base facing per cardinal direction
+	jr .sprite_facing_ready
+.preserve_facing
+	pop af
+.sprite_facing_ready
 	ld l, a
 	ld h, 0
 	add hl, hl
+	; Resolve special follower facings before overwriting the object pointer BC.
+	; All non-follower objects and special actions use the original table.
+	ld a, [wFollowerResolvedGFXID + 1]
+	and a
+	jp nz, .default_facings
+	ld a, [wFollowerResolvedGFXID]
+	cp CHIKORITA
+	jr z, .check_large_follower
+	cp CYNDAQUIL
+	jr z, .check_large_follower
+	cp TOTODILE
+	jp nz, .default_facings
+.check_large_follower
+	push hl
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	cp SPRITE_FOLLOWER
+	jp nz, .default_facings
+	ld a, l
+	cp FACING_FISH_DOWN * 2
+	jr nc, .default_facings
+	; Select a grounded half-step followed by one foot pose. The native
+	; Pokemon path controller alternates stride parity between map tiles;
+	; using four poses per eight-frame tile looked unnaturally fast.
+	; Preserve DE: D holds this sprite's OAM palette/priority flags.
+	push de
+	ld hl, OBJECT_DIRECTION
+	add hl, bc
+	ld a, [hl]
+	and $0c
+	ld e, a ; direction * 4 (base facing index)
+	ld hl, OBJECT_STEP_TYPE
+	add hl, bc
+	ld a, [hl]
+	cp STEP_TYPE_NPC_WALK
+	jr z, .large_moving
+	cp STEP_TYPE_PLAYER_WALK
+	jr z, .large_moving
+	cp STEP_TYPE_CONTINUE_WALK
+	jr z, .large_moving
+.large_standing
+	xor a ; stopped / idle = neutral frame
+	jr .large_phase_ready
+.large_moving
+	ld hl, OBJECT_STEP_DURATION
+	add hl, bc
+	ld a, [hl]
+	and a
+	jr z, .large_standing
+	ld d, a ; remaining frames, DE saved by caller
+	ld hl, OBJECT_WALKING
+	add hl, bc
+	ld a, [hl]
+	and %00001100 ; ignore direction, use step speed
+	cp STEP_SLOW << 2
+	jr z, .large_slow_step
+	cp STEP_WALK << 2
+	jr z, .large_normal_step
+	cp STEP_BIKE << 2
+	jr z, .large_fast_step
+	jr .large_standing ; unknown movement form
+.large_slow_step
+	ld a, d
+	cp 17 ; 16-frame step, d in 1..16
+	jr nc, .large_standing
+	ld a, 16
+	sub d
+	cp 8
+	jr c, .large_neutral_phase
+	jr .large_stride_phase
+.large_normal_step
+	ld a, d
+	cp 9 ; 8-frame step, d in 1..8
+	jr nc, .large_standing
+	ld a, 8
+	sub d
+	cp 4
+	jr c, .large_neutral_phase
+	jr .large_stride_phase
+.large_fast_step
+	ld a, d
+	cp 5 ; 4-frame step, d in 1..4
+	jr nc, .large_standing
+	ld a, 4
+	sub d
+	cp 2
+	jr c, .large_neutral_phase
+.large_stride_phase
+	ld a, [wFollowerStrideParity]
+	and 1
+	jr z, .stride_a
+	ld a, 3 ; alternate right/left foot on successive map tiles
+	jr .large_phase_ready
+.stride_a
+	ld a, 1
+	jr .large_phase_ready
+.large_neutral_phase
+	xor a
+.large_phase_ready
+	or e
+	ld l, a
+	ld h, 0
+	add hl, hl ; facing index to 2-byte pointer
+	pop de
+	; Each large-facing tile selects its own VRAM bank in the facing
+	; table. Side stride 3 deliberately mixes bank-1 walking body tiles
+	; and bank-0 standing foot tiles; forcing bank 1 for all nine
+	; pieces made the feet display unrelated sprites on left/right steps.
+	ld bc, FollowerLargeFacings
+	jr .facings_selected
+.default_facings
+	; Legacy 16x16 followers also use the shared walking half; keep all
+	; 251 species on the same protected bank-1 walking graphics path.
+	push hl
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	cp SPRITE_FOLLOWER
+	jr nz, .regular_facings
+	ld a, l
+	cp FACING_FISH_DOWN * 2
+	jr nc, .regular_facings
+	bit 1, l
+	jr z, .regular_facings
+	set B_OAM_BANK1, d
+.regular_facings
 	ld bc, Facings
+.facings_selected
 	add hl, bc
 	ld a, [hli]
 	ld h, [hl]
@@ -2999,7 +3567,9 @@ InitSprites:
 	ldh a, [hCurSpriteOAMFlags]
 	or e
 .nope2
-	and OAM_PAL1 | OAM_XFLIP | OAM_YFLIP | OAM_PRIO
+	; Permit bank selection from per-tile facing attributes. Legacy
+	; sprites still inherit their normal bank from D as before.
+	and OAM_PAL1 | OAM_XFLIP | OAM_YFLIP | OAM_PRIO | OAM_BANK1
 	or d
 	ld [bc], a ; attributes
 	inc c

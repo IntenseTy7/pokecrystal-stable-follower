@@ -88,6 +88,13 @@ LoadMapObjects:
 MapSetup_DummyFunction: ; unreferenced
 	ret
 
+; Called by the seamless map-connection setup after new map objects are loaded
+; into wMapObjects, but before they are initialized as visible structs.
+; The old group-wide sprite preload is no longer used for outdoor maps.
+RefreshConnectionSpriteGFX:
+	farcall RefreshSprites
+	ret
+
 ResetPlayerObjectAction:
 	ld hl, wPlayerSpriteSetupFlags
 	set PLAYERSPRITESETUP_RESET_ACTION_F, [hl]
@@ -272,21 +279,123 @@ FindFollowerSlot:
     scf
     ret
 
+; Place the follower a step behind the player's map-entry direction.
+; Do not start the follow queue from the same tile as the player.
 PlaceFollowerObject::
     call FindFollowerSlot
     ret c
+    push bc
     push hl
+    call GetFollowerSpawnFacing ; identical direction used for initial OAM
+    call GetFollowerSpawnCoords ; D = X, E = Y
+    pop hl
+    pop bc
+    ld a, e
+    push de
     ld de, MAPOBJECT_Y_COORD
     add hl, de
-    ld a, [wYCoord]
-    add 4
     ld [hl], a
-    pop hl
-    ld de, MAPOBJECT_X_COORD
+    pop de
+    ld a, d
+    ld de, MAPOBJECT_X_COORD - MAPOBJECT_Y_COORD
     add hl, de
+    ld [hl], a
+    ret
+
+; Resolve the follower's map-entry position AND initial facing together.
+; Bottom-door arrivals enter from below even when the player's warp-facing
+; routine forces DOWN on the destination tile.  Preserve the caller's object
+; pointers: this routine also runs during follower object initialization.
+GetFollowerSpawnFacing::
+    push bc
+    push de
+    push hl
+    call GetFollowerEntryFacing
+    push af
+    call GetMapEnvironment
+    cp INDOOR
+    jr nz, .usual
+    ld a, [wMapHeight]
+    add a
+    dec a ; final indoor tile row
+    ld c, a
+    ld a, [wYCoord]
+    cp c
+    jr nz, .usual
+    pop af
+    ld a, UP ; follower is one tile below the player, facing UP
+    jr .done
+.usual
+    pop af
+.done
+    pop hl
+    pop de
+    pop bc
+    ret
+
+; A = resolved facing; returns D = follower X, E = follower Y.
+GetFollowerSpawnCoords:
+    push af
     ld a, [wXCoord]
     add 4
-    ld [hl], a
+    ld d, a
+    ld a, [wYCoord]
+    add 4
+    ld e, a
+    pop af
+    cp DOWN
+    jr z, .player_facing_down
+    cp UP
+    jr z, .player_facing_up
+    cp LEFT
+    jr z, .player_facing_left
+; Player faces right: follower starts to the left.
+    dec d
+    ret
+
+.player_facing_down
+    dec e
+    ret
+
+.player_facing_up
+    inc e
+    ret
+
+.player_facing_left
+    inc d
+    ret
+
+; Match the facing rules in RefreshPlayerSprite, which runs *after*
+; LoadMapObjects in Crystal's warp/connection map-setup scripts.
+; At a door/staircase, the player will be forced to face down regardless of
+; the direction used to enter the previous map. Custom facing wins last.
+; Return A = direction 0..3, preserving BC/DE/HL for object callers.
+GetFollowerEntryFacing::
+    push bc
+    push de
+    push hl
+    farcall CheckWarpFacingDown
+    jr nc, .from_player
+    xor a ; DOWN
+    jr .check_custom
+.from_player
+    ld a, [wPlayerDirection]
+    srl a
+    srl a
+    maskbits NUM_DIRECTIONS
+.check_custom
+    ld e, a
+    ld a, [wPlayerSpriteSetupFlags]
+    bit PLAYERSPRITESETUP_CUSTOM_FACING_F, a
+    jr z, .normal
+    and PLAYERSPRITESETUP_FACING_MASK
+    jr .done
+.normal
+    ld a, e
+.done
+    pop hl
+    pop de
+    pop bc
     ret
 
 StartFollowerObject::
@@ -295,8 +404,19 @@ StartFollowerObject::
     ld a, [wCurMapObjectEventCount]
     ld c, a
     ld b, 0
-    farcall StartFollow
+    farcall StartFollowMap
     ret
+
+; Temporarily remove the permanent Pokemon follower from the active
+; object list while a scripted NPC uses Crystal's shared follow state.
+; The map-event template remains so RespawnFollowerObject can restore it
+; when the entire script finishes (not at the middle of a rival shove).
+SuspendNativeFollowerForScript::
+    call FindFollowerSlot
+    ret c
+    ld a, [wCurMapObjectEventCount]
+    ldh [hMapObjectIndex], a
+    jp DeleteObjectStruct
 
 RespawnFollowerObject::
     call FindFollowerSlot
@@ -308,6 +428,14 @@ RespawnFollowerObject::
     ld a, [wCurMapObjectEventCount]
     call UnmaskCopyMapObjectStruct
     jp StartFollowerObject
+
+SpawnFollowerAfterStarter::
+    call AddFollowerObject
+    call PlaceFollowerObject
+    farcall InitializeVisibleSprites
+    call StartFollowerObject
+    farcall LoadFollowerGFX
+    ret
 POPS
 
 PUSHS

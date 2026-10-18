@@ -3033,7 +3033,12 @@ wObjectFollow_Leader:: db
 wObjectFollow_Follower:: db
 wCenteredObject:: db
 wFollowerMovementQueueLength:: db
-wFollowMovementQueue:: ds 5
+; This is a 1-based movement queue: only slots +1 through +4 are used.
+; Reuse its previously unused +0 byte for the scripted-follow resume flag.
+; This preserves every existing WRAM address and avoids shifting save data.
+wFollowMovementQueue::
+wFollowerRespawnAfterScript:: db
+    ds 4
 
 wObjectStructs::
 wPlayerStruct:: object_struct wPlayer ; player is object struct 0

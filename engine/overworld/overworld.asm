@@ -92,15 +92,12 @@ GetPlayerSprite:
 INCLUDE "data/sprites/player_sprites.asm"
 
 AddMapSprites:
-	call GetMapEnvironment
-	call CheckOutdoorMap
-	jr z, .outdoor
-	call AddIndoorSprites
-	ret
-
-.outdoor
-	call AddOutdoorSprites
-	ret
+	; A dedicated 24x24 follower reserves 27 standing and 27 walking
+	; tiles. Outdoor group-wide preloads could displace live walking NPCs
+	; into the bank-0, standing-only table (which contains text tiles at
+	; their walking indices). Use the same per-map object list indoors
+	; and outdoors. Connections explicitly refresh the graphics below.
+	jp AddIndoorSprites
 
 AddIndoorSprites:
 	ld hl, wMap1ObjectSprite
@@ -473,9 +470,12 @@ ArrangeUsedSprites:
 	ld a, [hl]
 	call GetSpriteLength
 
-; Spill over into the second table after $80 tiles.
+; Normal bank-1 walking graphics use $80 + their standing tile index.
+; Spill into bank 0 BEFORE they reach the dedicated large follower
+; walking range ($dd..$f7). The prior $78 first-table limit let
+; ordinary NPC walking sprites overwrite the follower on every step.
 	add b
-	cp FIXED_FRUIT_TREE_VTILE
+	cp FOLLOWER_NORMAL_FIRST_TABLE_LIMIT
 	jr z, .loop
 	jr nc, .SecondTable
 

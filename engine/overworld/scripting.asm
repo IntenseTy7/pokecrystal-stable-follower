@@ -1011,12 +1011,22 @@ Script_follow:
 	call GetScriptByte
 	call GetScriptObject
 	ld c, a
+	; The permanent Pokemon uses the same two WRAM follow slots as the
+	; scripted teacher/rival/NPC. Hide it before assigning the NPC's
+	; follow state, then restore after the scripted scene has ended.
+	push bc
+	farcall SuspendNativeFollowerForScript
+	pop bc
 	farcall StartFollow
 	ret
 
 Script_stopfollow:
 	farcall StopFollow
-	farcall RespawnFollowerObject
+	; Do not respawn the permanent Pokemon partway through a scripted
+	; scene. Rival/teacher events may keep moving the player after this
+	; stopfollow, and a new follower would immediately join that movement.
+	ld a, TRUE
+	ld [wFollowerRespawnAfterScript], a
 	ret
 
 Script_moveobject:
@@ -2263,6 +2273,7 @@ Script_end:
 	ld hl, wScriptFlags
 	res UNUSED_SCRIPT_FLAG_0, [hl]
 	call StopScript
+	call ResumeNativeFollowerAfterScript
 	ret
 
 Script_endcallback:
@@ -2272,6 +2283,19 @@ Script_endcallback:
 	ld hl, wScriptFlags
 	res UNUSED_SCRIPT_FLAG_0, [hl]
 	call StopScript
+	call ResumeNativeFollowerAfterScript
+	ret
+
+; Only rebuild the permanent follower after all scripted NPC movement has
+; finished. ResumeNativeFollowerAfterScript is shared by normal endings and
+; endcallbacks/endall, and is idempotent when nothing was suspended.
+ResumeNativeFollowerAfterScript:
+	ld a, [wFollowerRespawnAfterScript]
+	and a
+	ret z
+	xor a
+	ld [wFollowerRespawnAfterScript], a
+	farcall RespawnFollowerObject
 	ret
 
 ExitScriptSubroutine:
@@ -2313,6 +2337,7 @@ Script_endall:
 	ld hl, wScriptFlags
 	res UNUSED_SCRIPT_FLAG_0, [hl]
 	call StopScript
+	call ResumeNativeFollowerAfterScript
 	ret
 
 Script_halloffame:
