@@ -838,6 +838,9 @@ ApplyMovement:
 
 UnfreezeFollowerObject:
 	farcall _UnfreezeFollowerObject
+	; During an NPC-led tour the player is Crystal's scripted follower.
+	; Keep the separate native Pokemon object unfrozen too.
+	farcall UnfreezeNativeFollowerDuringGuide
 	ret
 
 Script_applymovementlasttalked:
@@ -1011,20 +1014,52 @@ Script_follow:
 	call GetScriptByte
 	call GetScriptObject
 	ld c, a
-	; The permanent Pokemon uses the same two WRAM follow slots as the
-	; scripted teacher/rival/NPC. Hide it before assigning the NPC's
-	; follow state, then restore after the scripted scene has ended.
+	; Only when a visible NPC LEADS the player (Cherrygrove guide,
+	; Violet's teacher, Lance tours, etc.) keep the native Pokemon on
+	; its own tile-trail controller. This must not affect rival/teacher
+	; scenes where the PLAYER leads a scripted NPC.
+	ld a, c
+	and a ; follower is PLAYER?
+	jr nz, .suspend_native
+	ld a, b
+	and a ; leader is an NPC?
+	jr z, .suspend_native
+	push bc
+	farcall DetachNativeFollowerForGuide
+	pop bc
+	; The active NPC-leads-PLAYER pair itself identifies dual-follow
+	; mode. Do not reuse wFollowerRespawnAfterScript: vanilla's scripted
+	; movement queue reads/writes that byte as its slot zero.
+	jr .start_script_follow
+.suspend_native
 	push bc
 	farcall SuspendNativeFollowerForScript
 	pop bc
+	ld a, TRUE ; defer native respawn to script completion
+	ld [wFollowerRespawnAfterScript], a
+.start_script_follow
 	farcall StartFollow
 	ret
 
 Script_stopfollow:
+	; The active pair identifies a guide tour (NPC leads PLAYER).
+	; Capture it BEFORE StopFollow clears the two shared indexes.
+	ld a, [wObjectFollow_Leader]
+	inc a
+	cp 2
+	jr c, .legacy
+	ld a, [wObjectFollow_Follower]
+	and a
+	jr nz, .legacy
 	farcall StopFollow
-	; Do not respawn the permanent Pokemon partway through a scripted
-	; scene. Rival/teacher events may keep moving the player after this
-	; stopfollow, and a new follower would immediately join that movement.
+	; The native Pokemon was never removed; do not respawn it.
+	farcall ReattachNativeFollowerAfterGuide
+	xor a
+	ld [wFollowerRespawnAfterScript], a
+	ret
+.legacy
+	farcall StopFollow
+	; Keep V8's deferred respawn for rival and other scripted NPCs.
 	ld a, TRUE
 	ld [wFollowerRespawnAfterScript], a
 	ret
@@ -2290,6 +2325,20 @@ Script_endcallback:
 ; finished. ResumeNativeFollowerAfterScript is shared by normal endings and
 ; endcallbacks/endall, and is idempotent when nothing was suspended.
 ResumeNativeFollowerAfterScript:
+	; Defensive recovery for a tour script missing stopfollow.
+	ld a, [wObjectFollow_Leader]
+	inc a
+	cp 2
+	jr c, .legacy
+	ld a, [wObjectFollow_Follower]
+	and a
+	jr nz, .legacy
+	farcall StopFollow
+	farcall ReattachNativeFollowerAfterGuide
+	xor a
+	ld [wFollowerRespawnAfterScript], a
+	ret
+.legacy
 	ld a, [wFollowerRespawnAfterScript]
 	and a
 	ret z

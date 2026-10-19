@@ -643,11 +643,9 @@ MovementFunction_0e:
 	jp _GetMovementObject
 
 MovementFunction_Follow:
-	; The permanent Pokemon follows the actual tiles vacated by the
-	; trainer. Keep the original command queue for scripted NPC follow.
-	ld a, [wObjectFollow_Leader]
-	and a ; player object struct is zero
-	jr nz, .scripted
+	; Use the tile-trail controller for the Pokemon, even while the
+	; trainer is temporarily following a scripted guide. The original
+	; command queue remains assigned to the guide's PLAYER follower.
 	ld hl, OBJECT_SPRITE
 	add hl, bc
 	ld a, [hl]
@@ -1958,6 +1956,33 @@ INCLUDE "engine/overworld/movement.asm"
 
 ApplyMovementToFollower:
 	ld e, a
+	; While an NPC leads PLAYER, the NPC's old queue controls PLAYER.
+	; Still record the real tiles PLAYER vacates for the native Pokemon.
+	; The active NPC-LEADS-PLAYER pair identifies tour mode. Avoid
+	; wFollowerRespawnAfterScript, which aliases scripted queue slot 0.
+	ld a, [wObjectFollow_Leader]
+	cp -1
+	jr z, .original_follow
+	and a
+	jr z, .original_follow
+	ld a, [wObjectFollow_Follower]
+	and a
+	jr nz, .original_follow
+	ldh a, [hMapObjectIndex]
+	and a ; only commands applied to the PLAYER
+	jr nz, .original_follow
+	ld a, e
+	cp movement_slow_step ; turns/blocked movement do not vacate tiles
+	ret c
+	cp movement_turn_away
+	jr c, .record_native_during_tour
+	cp movement_slow_jump_step
+	ret c
+	cp movement_remove_sliding
+	ret nc
+.record_native_during_tour
+	jp QueueNativeFollowerWaypoint
+.original_follow
 	ld a, [wObjectFollow_Follower]
 	cp -1
 	ret z
@@ -2856,6 +2881,84 @@ _SetPlayerPalette:
 	and ~OAM_PALETTE
 	or d
 	ld [hl], a
+	ret
+
+; The script-follow pair uses two global object indexes. When a guide
+; leads PLAYER, release only their POINTER to the Pokemon, not the Pokemon
+; object itself. Otherwise StartFollow's ResetFollower would reset it.
+DetachNativeFollowerForGuide::
+	push bc
+	ld a, [wObjectFollow_Follower]
+	cp -1
+	jr z, .done
+	call GetObjectStruct
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	cp SPRITE_FOLLOWER
+	jr nz, .done
+	ld a, -1
+	ld [wObjectFollow_Follower], a
+.done
+	pop bc
+	ret
+
+; After the tour, restore the normal shared indexes without deleting,
+; relocating or reinitializing the Pokemon's movement/animation state.
+ReattachNativeFollowerAfterGuide::
+	push bc
+	ld a, [wCurMapObjectEventCount]
+	call CheckObjectVisibility
+	jr c, .done
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	cp SPRITE_FOLLOWER
+	jr nz, .done
+	ld a, PLAYER
+	ld [wObjectFollow_Leader], a
+	ldh a, [hObjectStructIndex]
+	ld [wObjectFollow_Follower], a
+	xor a
+	ld [wFollowerMovementQueueLength], a
+.done
+	pop bc
+	ret
+
+; Script_applymovement freezes everyone but its actor (and the old
+; scripted follower). During an NPC-led tour we must also unfreeze the
+; Pokemon or its graphics remain visible but it stops walking.
+UnfreezeNativeFollowerDuringGuide::
+	ld a, [wObjectFollow_Leader]
+	cp -1
+	ret z
+	and a
+	ret z
+	ld a, [wObjectFollow_Follower]
+	and a ; scripted follower must be PLAYER
+	ret nz
+	push bc
+	ldh a, [hMapObjectIndex]
+	push af
+	ldh a, [hObjectStructIndex]
+	push af
+	ld a, [wCurMapObjectEventCount]
+	call CheckObjectVisibility
+	jr c, .restore
+	ld hl, OBJECT_SPRITE
+	add hl, bc
+	ld a, [hl]
+	cp SPRITE_FOLLOWER
+	jr nz, .restore
+	ld hl, OBJECT_FLAGS2
+	add hl, bc
+	res FROZEN_F, [hl]
+.restore
+	pop af
+	ldh [hObjectStructIndex], a
+	pop af
+	ldh [hMapObjectIndex], a
+	pop bc
 	ret
 
 StartFollow::
